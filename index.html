@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Suite</title>
+    <style>
+        :root {
+            --primary: linear-gradient(90deg, #00f260, #0575e6);
+            --secondary: rgba(255, 255, 255, 0.1);
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            --blur: 20px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --glow: 0 0 15px rgba(5, 117, 230, 0.6);
+            --toast-bg: rgba(0, 0, 0, 0.8);
+            --toast-border: 1px solid rgba(5, 117, 230, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            overflow: hidden;
+            touch-action: manipulation;
+            position: relative;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            perspective: 1000px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(var(--blur));
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            transition: var(--transition);
+            animation: fadeIn 0.8s ease, float 6s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(0.5deg);
+            }
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #00f260, #0575e6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px rgba(5, 117, 230, 0.5);
+            }
+
+            to {
+                text-shadow: 0 0 20px rgba(5, 117, 230, 0.8);
+            }
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 15px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--glow);
+            transform: scale(1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover:before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(5, 117, 230, 0.8);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            margin-top: 8px;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgba(5, 117, 230, 0.6);
+            box-shadow: var(--glow);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .center {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .timer {
+            font-size: 36px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00f260, #0575e6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--toast-bg);
+            color: #fff;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: var(--toast-border);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            animation: toastFadeIn 0.5s ease forwards, toastFloat 3s ease-in-out 0.5s forwards;
+        }
+
+        @keyframes toastFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastFloat {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .timer {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- MENU -->
+        <div class="card" id="menu">
+            <h2>🚀 Office Suite</h2>
+            <button onclick="showTracker()">Track Office Time (Live)</button>
+            <button onclick="showManual()">Track Office Hours (Manual)</button>
+        </div>
+
+        <!-- LIVE TRACKER -->
+        <div class="card hidden" id="tracker">
+            <h2>⏱ Live Tracker</h2>
+            <div class="timer" id="liveTime">00:00:00</div>
+
+            <!-- <input type="text" id="tasking" placeholder="Add tasking (optional)"> -->
+            <input type="number" id="addMin" placeholder="Add minutes (optional)">
+            <button onclick="addMinutes()">Add Time</button>
+
+            <button onclick="takeBreak()" id="breakBtn">Take Break</button>
+            <button onclick="endBreak()" class="hidden" id="resumeBtn">End Break</button>
+            <button onclick="endOffice()">End Office</button>
+            <button onclick="goBack()">⬅ Back</button>
+        </div>
+
+        <!-- MANUAL TRACKER -->
+        <div class="card hidden" id="manual">
+            <h2>⏱ Manual Tracker</h2>
+
+            <label>Office Start</label>
+            <input type="time" id="start">
+
+            <label>Break Start</label>
+            <input type="time" id="breakStart">
+
+            <label>Break End</label>
+            <input type="time" id="breakEnd">
+
+            <label>Office End</label>
+            <input type="time" id="end">
+
+            <button onclick="calculateManual()">Calculate</button>
+            <div class="center" id="manualResult"></div>
+
+            <button onclick="goBack()">⬅ Back</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let timerInterval;
+        let seconds = 0;
+        let isPaused = false;
+
+        function showTracker() {
+            menu.classList.add('hidden');
+            tracker.classList.remove('hidden');
+            startTimer();
+        }
+
+        function showManual() {
+            menu.classList.add('hidden');
+            manual.classList.remove('hidden');
+        }
+
+        function goBack() {
+            location.reload();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    seconds++;
+                    updateDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateDisplay() {
+            let h = Math.floor(seconds / 3600);
+            let m = Math.floor((seconds % 3600) / 60);
+            let s = seconds % 60;
+            liveTime.innerText = `${pad(h)}:${pad(m)}:${pad(s)}`;
+        }
+
+        function pad(n) { return n < 10 ? '0' + n : n; }
+
+        function takeBreak() {
+            isPaused = true;
+            breakBtn.classList.add('hidden');
+            resumeBtn.classList.remove('hidden');
+        }
+
+        function endBreak() {
+            isPaused = false;
+            breakBtn.classList.remove('hidden');
+            resumeBtn.classList.add('hidden');
+        }
+
+        function endOffice() {
+            clearInterval(timerInterval);
+            showToast(`Total Time: ${liveTime.innerText}`);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            setTimeout(() => {
+                toast.style.animation = 'toastFadeOut 0.5s ease forwards';
+                setTimeout(() => { toast.style.opacity = '0'; }, 500);
+            }, 3000);
+        }
+
+        function addMinutes() {
+            let min = parseInt(addMin.value);
+            if (!isNaN(min)) {
+                seconds += min * 60;
+                updateDisplay();
+            }
+        }
+
+        // MANUAL
+        function timeToMinutes(t) {
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function calculateManual() {
+            const s = start.value;
+            const bs = breakStart.value;
+            const be = breakEnd.value;
+            const e = end.value;
+
+            if (!s || !bs || !be || !e) {
+                manualResult.innerText = 'Fill all fields';
+                return;
+            }
+
+            let total = (timeToMinutes(e) - timeToMinutes(s)) - (timeToMinutes(be) - timeToMinutes(bs));
+
+            let h = Math.floor(total / 60);
+            let m = total % 60;
+
+            manualResult.innerText = `Total: ${h} hr ${m} min`;
+        }
+    </script>
+
+</body>
+
+</html>
