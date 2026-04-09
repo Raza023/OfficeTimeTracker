@@ -1,6 +1,8 @@
 # 🚀 Office Suite: Ultimate Time Tracker
 
-[Office Suite](https://raza023.github.io/OfficeTimeTracker/){:target="_blank"}
+<a href="https://raza023.github.io/OfficeTimeTracker/" target="_blank">
+  Office Suite
+</a>
 
 A sleek, modern, and high-performance **Office Time Tracking** application designed with a premium glassmorphism aesthetic. Whether you want to track your hours live as you work or manually input your schedule, Office Suite makes it effortless and beautiful.
 
