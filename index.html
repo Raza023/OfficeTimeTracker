@@ -244,6 +244,18 @@
             }
         }
 
+        @keyframes toastFadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+
         @media (max-width: 480px) {
             .container {
                 width: 95%;
@@ -314,8 +326,8 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        let timerInterval;
-        let seconds = 0;
+        let accumulatedSeconds = 0;
+        let startTime = null;
         let isPaused = false;
 
         function showTracker() {
@@ -334,30 +346,37 @@
         }
 
         function startTimer() {
+            startTime = Date.now();
             timerInterval = setInterval(() => {
-                if (!isPaused) {
-                    seconds++;
-                    updateDisplay();
-                }
-            }, 1000);
+                updateDisplay();
+            }, 200);
         }
 
         function updateDisplay() {
-            let h = Math.floor(seconds / 3600);
-            let m = Math.floor((seconds % 3600) / 60);
-            let s = seconds % 60;
+            let totalSeconds = accumulatedSeconds;
+            if (!isPaused && startTime) {
+                totalSeconds += Math.floor((Date.now() - startTime) / 1000);
+            }
+            let h = Math.floor(totalSeconds / 3600);
+            let m = Math.floor((totalSeconds % 3600) / 60);
+            let s = totalSeconds % 60;
             liveTime.innerText = `${pad(h)}:${pad(m)}:${pad(s)}`;
         }
 
         function pad(n) { return n < 10 ? '0' + n : n; }
 
         function takeBreak() {
+            if (!isPaused && startTime) {
+                accumulatedSeconds += Math.floor((Date.now() - startTime) / 1000);
+            }
             isPaused = true;
             breakBtn.classList.add('hidden');
             resumeBtn.classList.remove('hidden');
+            updateDisplay();
         }
 
         function endBreak() {
+            startTime = Date.now();
             isPaused = false;
             breakBtn.classList.remove('hidden');
             resumeBtn.classList.add('hidden');
@@ -380,8 +399,9 @@
         function addMinutes() {
             let min = parseInt(addMin.value);
             if (!isNaN(min)) {
-                seconds += min * 60;
+                accumulatedSeconds += min * 60;
                 updateDisplay();
+                addMin.value = '';
             }
         }
 
